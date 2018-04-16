@@ -4,7 +4,10 @@
   "private": true,
   "scripts": {
     "start": "node ./bin/www",
-    "dev": "set DEBUG=express-mongoose-crud-api:* && npm start"
+    "dev": "set DEBUG=express-mongoose-crud-api:* && npm start",
+    "mongodb": "docker run --name mongodb -d -p 27017:27017 mongo:3.7.3-jessie",
+    "mongodbstart": "docker start mongodb",
+    "mongodbstop": "docker stop mongodb"
   },
   "dependencies": {
     "cookie-parser": "~1.4.3",
