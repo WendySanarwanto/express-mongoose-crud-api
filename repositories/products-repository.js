@@ -63,7 +63,6 @@ module.exports = class ProductsRepository {
         if (err) {
           console.log(`[ERROR] - <ProductsRepository.create> Details: \n`, err);
           return callback(errValidation)
-          return res.status(400).send({ error: err, message: 'Unable to create a new Product.'});
         }
 
         callback(null, createdProduct)
