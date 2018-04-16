@@ -31,7 +31,7 @@ module.exports = class ProductsRepository {
 
   /**
    * Create a new Product record into the database.
-   * @param {*} newProduct - New Product object to save.
+   * @param {*} request - JSON object of New Product object to save.
    * @param {*} callback - Callback function where 1st parameter contains error and 2nd parameter contains saved record object.
    */
   create(request, callback) {
