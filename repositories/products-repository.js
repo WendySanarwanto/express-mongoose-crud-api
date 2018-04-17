@@ -18,7 +18,6 @@ class ProductsRepository {
     // Validate the model instance and handle the validation error's response.
     const errValidation = newProduct.validateSync();
     if (errValidation) {
-      mongoose.disconnect();
       console.log(`[ERROR] - details: \n`, errValidation);
       return callback({ error: errValidation, message: 'Unable to create a new Product.', status: 400});
     }
@@ -34,6 +33,7 @@ class ProductsRepository {
 
     // Save the Product instance into MongoDB server
     newProduct.save((err, createdProduct) => {
+      // Disconnect from mongoDB
       mongoose.disconnect();
 
       // Handle error's response
