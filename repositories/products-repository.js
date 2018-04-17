@@ -79,7 +79,7 @@ class ProductsRepository {
 
   /**
    * Get Product record by specified ID.
-   * @param {*} id - ID of record to retrieve.
+   * @param {String} id - ID of record to retrieve.
    * @param {*} callback - Callback function where 1st parameter contains error and 2nd parameter contains retrieved record object.
    */
   get(id, callback) {
@@ -107,7 +107,7 @@ class ProductsRepository {
 
   /**
    * Update Product record by ID.
-   * @param {*} id - ID of target record to update.
+   * @param {String} id - ID of target record to update.
    * @param {*} changedData - Changed record.
    * @param {*} callback - Callback function where 1st parameter contains error and 2nd parameter contains changed record object.
    */
@@ -144,7 +144,33 @@ class ProductsRepository {
     });
   }
 
-  // TODO: Implement Delete method
+  /**
+   * Delete Product data by specified id
+   * @param {String} productId - ID of Product record to delete.
+   * @param {*} callback - Callback function where 1st parameter contains error.
+   */
+  delete(productId, callback) {
+    // Connect to MongoDB using mongoose
+    mongoose.connect(this.mongodbUrl);
+    const db = mongoose.connection;
+
+    db.on(`error`, (err) => {
+      console.log(`[ERROR] - <ProductsRepository.delete> Details: \n`, err);
+      callback({ error: err, message: 'Unable to connect to database.', status: 500});
+    });
+
+    Product.remove( { _id: productId }, (err)=>{
+      // Disconnect from mongoDB
+      mongoose.disconnect();
+
+      if (err) {
+        console.log(`[ERROR] - <ProductsRepository.delete> Details: \n`, err);
+        return callback(err);
+      }
+
+      callback(null);
+    });
+  }
 }
 
 module.exports = ProductsRepository;
