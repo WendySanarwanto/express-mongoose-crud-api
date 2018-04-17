@@ -77,7 +77,35 @@ class ProductsRepository {
     });
   }
 
-  // TODO: Implement Retrieve, Update & Delete methods
+  /**
+   * Get Product record by specified ID.
+   * @param {*} id - ID of record to retrieve.
+   * @param {*} callback - Callback function where 1st parameter contains error and 2nd parameter contains retrieved record object.
+   */
+  get(id, callback) {
+    // Connect to MongoDB using mongoose
+    mongoose.connect(this.mongodbUrl);
+    const db = mongoose.connection;
+
+    db.on(`error`, (err) => {
+      console.log(`[ERROR] - <ProductsRepository.get> Details: \n`, err);
+      callback({ error: err, message: 'Unable to connect to database.', status: 500});
+    });
+
+    Product.findById(id, (err, product) => {
+      // Disconnect from mongoDB
+      mongoose.disconnect();
+
+      if (err) {
+        console.log(`[ERROR] - <ProductsRepository.get> Details: \n`, err);
+        return callback(err);
+      }
+
+      callback(null, product);
+    });
+  };
+
+  // TODO: Implement Update & Delete methods
 }
 
 module.exports = ProductsRepository;

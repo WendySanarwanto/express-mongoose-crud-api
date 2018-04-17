@@ -32,7 +32,23 @@ router.get("/", (req, res, next) => {
     if (err) {
       return res.status(err.status).send(err);
     }
-    res.send(products);
+    res.status(200).json(products);
+  });
+});
+
+/**
+ * Retrieve a Produce from database by specified ID.
+ * HTTP Verb: GET
+ * Path endpoint: /api/products/{productId}
+ */
+router.get("/:productId", (req, res, next) => {
+  const productId = req.params.productId;
+  const repository = new ProductsRepository(MONGODB_URL);
+  repository.get(productId, (err, product) => {
+    if (err) {
+      return res.status(err.status).send(err);
+    }
+    res.status(200).json(product);
   });
 });
 
