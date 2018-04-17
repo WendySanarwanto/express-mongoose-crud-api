@@ -40,28 +40,28 @@ router.post('/', (req, res, next) => {
     res.status(500).send({ error: err, message: 'Unable to connect to database.'});
   });
 
-  db.on(`open`, () => {
-    const newProduct = new Product(req.body);
+  const newProduct = new Product(req.body);
 
-    // Validate the model instance and handle the validation error's response.
-    const errValidation = newProduct.validateSync();
-    if (errValidation) {
-      console.log(`[ERROR] - details: \n`, errValidation);
-      return res.status(400).send({ error: errValidation, message: 'Unable to create a new Product.'});    
+  // Validate the model instance and handle the validation error's response.
+  const errValidation = newProduct.validateSync();
+  if (errValidation) {
+    mongoose.disconnect();
+    console.log(`[ERROR] - details: \n`, errValidation);
+    return res.status(400).send({ error: errValidation, message: 'Unable to create a new Product.'});    
+  }
+
+  // Save the Product instance into MongoDB server
+  newProduct.save((err, createdProduct) => {
+    mongoose.disconnect();
+
+    // Handle error's response
+    if (err) {
+      console.log(`[ERROR] - details: \n`, err);
+      return res.status(400).send({ error: err, message: 'Unable to create a new Product.'});
     }
 
-    // Save the Product instance into MongoDB server
-    newProduct.save((err, createdProduct) => {
-      db.close();
-
-      // Handle error's response
-      if (err) {
-        console.log(`[ERROR] - details: \n`, err);
-        return res.status(400).send({ error: err, message: 'Unable to create a new Product.'});
-      }
-
-      res.send(createdProduct);
-    });
+    console.log(`[INFO] - Returning created record.`);
+    return res.status(200).json(createdProduct);
   });
 });
 
