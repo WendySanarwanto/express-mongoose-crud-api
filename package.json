@@ -7,7 +7,8 @@
     "dev": "set DEBUG=express-mongoose-crud-api:* && npm start",
     "mongodb": "docker run --name mongodb -d -p 27017:27017 mongo:3.7.3-jessie",
     "mongodbstart": "docker start mongodb",
-    "mongodbstop": "docker stop mongodb"
+    "mongodbstop": "docker stop mongodb",
+    "test": "node ./node_modules/jest/bin/jest.js"
   },
   "dependencies": {
     "cookie-parser": "~1.4.3",
@@ -17,6 +18,10 @@
     "http-errors": "~1.6.2",
     "jade": "~1.11.0",
     "mongoose": "^5.0.14",
-    "morgan": "~1.9.0"
+    "morgan": "~1.9.0",
+    "request": "^2.85.0"
+  },
+  "devDependencies": {
+    "jest": "^22.4.3"
   }
 }
