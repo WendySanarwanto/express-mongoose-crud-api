@@ -20,7 +20,7 @@ class ProductsRepository {
     // Validate the model instance and handle the validation error's response.
     const errValidation = newProduct.validateSync();
     if (errValidation) {
-      console.log(`[ERROR] - details: \n`, errValidation);
+      console.log(`[ERROR] - <ProductsRepository.createProduct> details: \n`, errValidation);
       return callback({ error: errValidation, message: 'Unable to create a new Product.', status: 400});
     }
 
@@ -29,7 +29,7 @@ class ProductsRepository {
     const db = mongoose.connection;
 
     db.on(`error`, (err) => {
-      console.log(`[ERROR] - details: \n`, err);
+      console.log(`[ERROR] - <ProductsRepository.createProduct> details: \n`, err);
       callback({ error: err, message: 'Unable to connect to database.', status: 500});
     });
 
@@ -40,11 +40,11 @@ class ProductsRepository {
 
       // Handle error's response
       if (err) {
-        console.log(`[ERROR] - details: \n`, err);
+        console.log(`[ERROR] - <ProductsRepository.createProduct> details: \n`, err);
         return callback({ error: err, message: 'Unable to create a new Product.', status: 400});
       }
 
-      console.log(`[INFO] - Returning created record.`);
+      console.log(`[INFO] - <ProductsRepository.createProduct> Returning created record.`);
       callback(null, createdProduct);
     });
   }
@@ -105,7 +105,46 @@ class ProductsRepository {
     });
   };
 
-  // TODO: Implement Update & Delete methods
+  /**
+   * Update Product record by ID.
+   * @param {*} id - ID of target record to update.
+   * @param {*} changedData - Changed record.
+   * @param {*} callback - Callback function where 1st parameter contains error and 2nd parameter contains changed record object.
+   */
+  update(id, changedData, callback) {
+    // Instantiate Product Model by specified request body
+    const changedProduct = new Product(changedData);
+
+    // Validate the model instance and handle the validation error's response.
+    const errValidation = changedProduct.validateSync();
+    if (errValidation) {
+      console.log(`[ERROR] - <ProductsRepository.update> details: \n`, errValidation);
+      return callback({ error: errValidation, message: 'Unable to update a Product.', status: 400});
+    }
+    
+    // Connect to MongoDB using mongoose
+    mongoose.connect(this.mongodbUrl);
+    const db = mongoose.connection;
+
+    db.on(`error`, (err) => {
+      console.log(`[ERROR] - <ProductsRepository.update> Details: \n`, err);
+      callback({ error: err, message: 'Unable to connect to database.', status: 500});
+    });
+    
+    Product.findByIdAndUpdate(id, changedData, (err, updatedProduct) => {
+      // Disconnect from mongoDB
+      mongoose.disconnect();
+
+      if (err) {
+        console.log(`[ERROR] - <ProductsRepository.update> Details: \n`, err);
+        return callback(err);
+      }
+      
+      callback(null, updatedProduct);
+    });
+  }
+
+  // TODO: Implement Delete method
 }
 
 module.exports = ProductsRepository;
