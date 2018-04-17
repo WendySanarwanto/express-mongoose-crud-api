@@ -4,26 +4,7 @@ const mongoose = require('mongoose');
 
 const MONGODB_URL = "mongodb://localhost/demo-express";
 
-// Define Product Schema
-const ProductSchema = mongoose.Schema({
-  name: {
-    type: String,
-    required: true
-  },
-  price: { 
-    amount: {
-      type: Number,
-      required: true
-    },
-    currency: {
-      type: String,
-      required: true
-    }
-  }
-});
-
-// Define Product Model from the Schema
-const Product = mongoose.model('Product', ProductSchema);
+const Product = require(`../models/product-model`);
 
 /**
  * Create a new Product on the database
@@ -31,24 +12,39 @@ const Product = mongoose.model('Product', ProductSchema);
  * Path Endpoint: /api/products
  */
 router.post('/', (req, res, next) => {
-  // Connect to MongoDB using mongoose
-  mongoose.connect(MONGODB_URL);
-  const db = mongoose.connection;
-
-  db.on(`error`, (err) => {
-    console.log(`[ERROR] - details: \n`, err);
-    res.status(500).send({ error: err, message: 'Unable to connect to database.'});
+  createProduct(req.body, (err, newProduct) => {
+    if (err) {
+      return res.status(err.status).json(err);
+    }
+    res.status(200).json(newProduct);
   });
+});
 
-  const newProduct = new Product(req.body);
+/**
+ * A helper method for creating Product record on mongoDB
+ * @param {*} request - Request body containing JSON object which represent a new Product record to be saved.
+ * @param {*} callback - Callback function whose 1st argument is containing error and the 2nd argument contains the saved record.
+ */
+function createProduct(request, callback) {
+  // Instantiate Product Model by specified request body
+  const newProduct = new Product(request);
 
   // Validate the model instance and handle the validation error's response.
   const errValidation = newProduct.validateSync();
   if (errValidation) {
     mongoose.disconnect();
     console.log(`[ERROR] - details: \n`, errValidation);
-    return res.status(400).send({ error: errValidation, message: 'Unable to create a new Product.'});    
+    return callback({ error: errValidation, message: 'Unable to create a new Product.', status: 400});
   }
+
+  // Connect to MongoDB using mongoose
+  mongoose.connect(MONGODB_URL);
+  const db = mongoose.connection;
+
+  db.on(`error`, (err) => {
+    console.log(`[ERROR] - details: \n`, err);
+    callback({ error: err, message: 'Unable to connect to database.', status: 500});
+  });
 
   // Save the Product instance into MongoDB server
   newProduct.save((err, createdProduct) => {
@@ -57,12 +53,12 @@ router.post('/', (req, res, next) => {
     // Handle error's response
     if (err) {
       console.log(`[ERROR] - details: \n`, err);
-      return res.status(400).send({ error: err, message: 'Unable to create a new Product.'});
+      return callback({ error: err, message: 'Unable to create a new Product.', status: 400});
     }
 
     console.log(`[INFO] - Returning created record.`);
-    return res.status(200).json(createdProduct);
+    callback(null, createdProduct);
   });
-});
+}
 
 module.exports = router;
