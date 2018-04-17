@@ -71,6 +71,22 @@ router.patch("/:productId", (req, res, next) => {
 });
 
 /**
+ * Delete an existing Product data record on the database by specified ID.
+ * HTTP Verb: DELETE
+ * Path endpoint: /api/products/{productId}
+ */
+router.delete("/:productId", (req, res, next) => {
+  const productId = req.params.productId;
+  const repository = new ProductsRepository(MONGODB_URL);
+  repository.delete(productId, (err) => {
+    if (err) {
+      return res.status(err.status).send(err);
+    }
+    res.status(200).json({});
+  });
+});
+
+/**
  * A helper to handle update data on database.
  * @param {*} res - Express Response object
  * @param {*} req - Express Request object
