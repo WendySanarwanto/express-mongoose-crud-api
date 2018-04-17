@@ -1,6 +1,6 @@
-"use strict"
+"use strict";
 
-var express = require('express');
+var express = require("express");
 var router = express.Router();
 const ProductsRepository = require(`../repositories/products-repository`);
 
@@ -11,7 +11,7 @@ const MONGODB_URL = "mongodb://localhost/demo-express";
  * HTTP Verb: POST
  * Path Endpoint: /api/products
  */
-router.post('/', (req, res, next) => {
+router.post("/", (req, res, next) => {
   const repository = new ProductsRepository(MONGODB_URL);
   repository.createProduct(req.body, (err, newProduct) => {
     if (err) {
@@ -33,7 +33,7 @@ router.get("/", (req, res, next) => {
       return res.status(err.status).send(err);
     }
     res.send(products);
-  });  
+  });
 });
 
 module.exports = router;
