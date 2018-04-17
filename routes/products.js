@@ -21,4 +21,19 @@ router.post('/', (req, res, next) => {
   });
 });
 
+/**
+ * Retrieve all Products from database
+ * HTTP Verb: GET
+ * Path endpoint: /api/products
+ */
+router.get("/", (req, res, next) => {
+  const repository = new ProductsRepository(MONGODB_URL);
+  repository.getAll((err, products) => {
+    if (err) {
+      return res.status(err.status).send(err);
+    }
+    res.send(products);
+  });  
+});
+
 module.exports = router;

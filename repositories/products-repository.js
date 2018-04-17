@@ -47,6 +47,33 @@ class ProductsRepository {
     });
   }
 
+  /**
+   * Get all Product records from database.
+   * @param {*} callback - Callback function where 1st parameter contains error and 2nd parameter contains saved record object. 
+   * @param {*} filter - optional parameter that can be used to filter the records. Default value is an empty object.
+   */
+  getAll(callback, filter = {}) {
+    // Connect to MongoDB using mongoose
+    mongoose.connect(this.mongodbUrl);
+    const db = mongoose.connection;
+
+    db.on(`error`, (err) => {
+      console.log(`[ERROR] - <ProductsRepository.getAll> Details: \n`, err);
+      callback({ error: err, message: 'Unable to connect to database.', status: 500});
+    });
+    
+    Product.find(filter, (err, products) => {
+      mongoose.disconnect();
+
+      if (err) {
+        console.log(`[ERROR] - <ProductsRepository.getAll> Details: \n`, err);
+        return callback(err);
+      }
+
+      callback(null, products);
+    });
+  }
+
   // TODO: Implement Retrieve, Update & Delete methods
 }
 
