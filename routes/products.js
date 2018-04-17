@@ -37,7 +37,7 @@ router.get("/", (req, res, next) => {
 });
 
 /**
- * Retrieve a Produce from database by specified ID.
+ * Retrieve a Product from database by specified ID.
  * HTTP Verb: GET
  * Path endpoint: /api/products/{productId}
  */
@@ -51,5 +51,40 @@ router.get("/:productId", (req, res, next) => {
     res.status(200).json(product);
   });
 });
+
+/**
+ * Update a Product data on the database by specified ID
+ * HTTP Verb: PUT
+ * Path endpoint: /api/products/{productId}
+ */
+router.put("/:productId", (req, res, next) => {
+  doUpdate(res, req);
+});
+
+/**
+ * Update a Product data on the database by specified ID
+ * HTTP Verb: PATCH
+ * Path endpoint: /api/products/{productId}
+ */
+router.patch("/:productId", (req, res, next) => {
+  doUpdate(res, req);
+});
+
+/**
+ * A helper to handle update data on database.
+ * @param {*} res - Express Response object
+ * @param {*} req - Express Request object
+ */
+function doUpdate(res, req) {
+  const productId = req.params.productId;
+  const changedProduct = req.body;
+  const repository = new ProductsRepository(MONGODB_URL);
+  repository.update(productId, changedProduct, (err, updatedProduct) => {
+    if (err) {
+      return res.status(err.status).send(err);
+    }
+    res.status(200).json(changedProduct);
+  });
+}
 
 module.exports = router;
