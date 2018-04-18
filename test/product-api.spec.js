@@ -1,5 +1,5 @@
 const assert = require("assert");
-const request = require(`request`);
+const request = require(`request-promise`);
 
 describe(`Product API`, () => {
   const hostUrl = `http://localhost:3000`;
@@ -13,7 +13,7 @@ describe(`Product API`, () => {
   };
   let createdProduct = null;
 
-  beforeEach(done => {
+  beforeEach( async() => {
     // Always create a new Product record.
     const product = testProduct;
 
@@ -25,15 +25,12 @@ describe(`Product API`, () => {
     };
 
     // Call create product API
-    request(params, (err, response) => {
-      assert.equal(err, null);
-      createdProduct = response.body;
-      // console.log(`[DEBUG] -<beforeEach> createdProduct: \n`, createdProduct);
-      done();
-    });
+    const response = await request(params);
+    createdProduct = response;
+    // console.log(`[DEBUG] -<beforeEach> createdProduct: \n`, createdProduct);
   });
 
-  afterEach(done => {
+  afterEach( async() => {
     const params = {
       method: "DELETE",
       uri: `${hostUrl}${productsApiPath}/${createdProduct._id}`,
@@ -41,68 +38,55 @@ describe(`Product API`, () => {
     };
 
     // Call create product API
-    request(params, (err, response) => {
-      assert.equal(err, null);
-      createdProduct = null;
-      // console.log(`[DEBUG] -<afterEach> response.body: \n`, response.body);
-      done();
-    });
+    await request(params);
+    createdProduct = null;
   });
 
-  it(`creates a new Product`, (done) => {
-    // console.log(`[DEBUG] -<createNewProductTest> createdProduct: \n`, createdProduct);
+  it(`creates a new Product`, () => {
     assert.ok(createdProduct);
     assert.equal(createdProduct.name, testProduct.name);
     assert.equal(createdProduct.price.amount, testProduct.price.amount);
     assert.equal(createdProduct.price.currency, testProduct.price.currency);
     assert.ok(createdProduct._id);
-    done();
   });
 
-  it(`gets all products`, (done) => {
+  it(`gets all products`, async() => {
     const params = {
       method: "GET",
       uri: `${hostUrl}${productsApiPath}`,
       json: true
     };
 
-    request(params, (err, response) => {
-      const products = response.body;
-      // console.log(`[DEBUG] - products: \n`, products);
-      assert.equal(err, null);
-      assert.ok(Array.isArray(products));
-      assert.ok(products.length > 0);
-      const product = products[0];
+    const products = await request(params);
 
-      assert.equal(product.name, createdProduct.name);
-      assert.equal(product.price.amount, createdProduct.price.amount);
-      assert.equal(product.price.currency, createdProduct.price.currency);
-      assert.equal(product._id, createdProduct._id);
-      done();
-    });
+    // console.log(`[DEBUG] - products: \n`, products);
+    assert.ok(Array.isArray(products));
+    assert.ok(products.length > 0);
+    const product = products[0];
+
+    assert.equal(product.name, createdProduct.name);
+    assert.equal(product.price.amount, createdProduct.price.amount);
+    assert.equal(product.price.currency, createdProduct.price.currency);
+    assert.equal(product._id, createdProduct._id);
   });
 
-  it(`gets a product`, (done) => {
+  it(`gets a product`, async() => {
     const params = {
       method: "GET",
       uri: `${hostUrl}${productsApiPath}/${createdProduct._id}`,
       json: true
     };
 
-    request(params, (err, response) => {
-      const product = response.body;
-      // console.log(`[DEBUG] - products: \n`, product);
-      assert.equal(err, null);
+    const product = await request(params);
 
-      assert.equal(product.name, createdProduct.name);
-      assert.equal(product.price.amount, createdProduct.price.amount);
-      assert.equal(product.price.currency, createdProduct.price.currency);
-      assert.equal(product._id, createdProduct._id);
-      done();
-    });
+    // console.log(`[DEBUG] - products: \n`, product);
+    assert.equal(product.name, createdProduct.name);
+    assert.equal(product.price.amount, createdProduct.price.amount);
+    assert.equal(product.price.currency, createdProduct.price.currency);
+    assert.equal(product._id, createdProduct._id);    
   });
 
-  it(`updates a product`, (done) => {
+  it(`updates a product`, async() => {
     const newPrice = 1500;
     createdProduct.price.amount = newPrice;
 
@@ -113,20 +97,15 @@ describe(`Product API`, () => {
       json: true
     };
 
-    request(params, (err, response) => {
-      const updatedProduct = response.body;
+    const updatedProduct = await request(params);
 
-      assert.equal(err, null);
-
-      assert.equal(updatedProduct.name, createdProduct.name);
-      assert.equal(updatedProduct.price.amount, newPrice);
-      assert.equal(updatedProduct.price.currency, createdProduct.price.currency);
-      assert.equal(updatedProduct._id, createdProduct._id);
-      done();
-    });
+    assert.equal(updatedProduct.name, createdProduct.name);
+    assert.equal(updatedProduct.price.amount, newPrice);
+    assert.equal(updatedProduct.price.currency, createdProduct.price.currency);
+    assert.equal(updatedProduct._id, createdProduct._id);
   });
 
-  it(`deletes a product`, (done) => {
+  it(`deletes a product`, async() => {
     const targetId = createdProduct._id;
 
     const params = {
@@ -135,12 +114,7 @@ describe(`Product API`, () => {
       json: true
     };
 
-    request(params, (err, response) => {
-      const empty = response.body;
-
-      assert.equal(err, null);
-      assert.deepStrictEqual(empty, {});
-      done();
-    });
+    const empty = await request(params);
+    assert.deepStrictEqual(empty, {});
   });
 });
