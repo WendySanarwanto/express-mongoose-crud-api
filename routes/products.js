@@ -11,14 +11,14 @@ const MONGODB_URL = "mongodb://localhost/demo-express";
  * HTTP Verb: POST
  * Path Endpoint: /api/products
  */
-router.post("/", (req, res, next) => {
+router.post("/", async (req, res, next) => {
   const repository = new ProductsRepository(MONGODB_URL);
-  repository.createProduct(req.body, (err, newProduct) => {
-    if (err) {
-      return res.status(err.status).json(err);
-    }
-    res.status(200).json(newProduct);
-  });
+  try { 
+    const createdProduct = await repository.createProduct(req.body);
+    res.status(200).json(createdProduct);
+  } catch(err) {
+    res.status(err.status).json(err);
+  }
 });
 
 /**
@@ -26,14 +26,14 @@ router.post("/", (req, res, next) => {
  * HTTP Verb: GET
  * Path endpoint: /api/products
  */
-router.get("/", (req, res, next) => {
+router.get("/", async (req, res, next) => {
   const repository = new ProductsRepository(MONGODB_URL);
-  repository.getAll((err, products) => {
-    if (err) {
-      return res.status(err.status).send(err);
-    }
+  try {
+    const products = await repository.getAll();
     res.status(200).json(products);
-  });
+  } catch(err) {
+    res.status(err.status).send(err);
+  }
 });
 
 /**
@@ -41,15 +41,15 @@ router.get("/", (req, res, next) => {
  * HTTP Verb: GET
  * Path endpoint: /api/products/{productId}
  */
-router.get("/:productId", (req, res, next) => {
+router.get("/:productId", async (req, res, next) => {
   const productId = req.params.productId;
   const repository = new ProductsRepository(MONGODB_URL);
-  repository.get(productId, (err, product) => {
-    if (err) {
-      return res.status(err.status).send(err);
-    }
+  try {
+    const product = await repository.get(productId);
     res.status(200).json(product);
-  });
+  } catch(err) {
+    res.status(err.status).send(err);
+  }
 });
 
 /**
@@ -57,8 +57,13 @@ router.get("/:productId", (req, res, next) => {
  * HTTP Verb: PUT
  * Path endpoint: /api/products/{productId}
  */
-router.put("/:productId", (req, res, next) => {
-  doUpdate(res, req);
+router.put("/:productId", async (req, res, next) => {
+  try{
+    const changedProduct = await doUpdate(res, req);
+    res.status(200).json(changedProduct);
+  } catch (err) {
+    res.status(err.status).send(err);
+  }
 });
 
 /**
@@ -66,8 +71,13 @@ router.put("/:productId", (req, res, next) => {
  * HTTP Verb: PATCH
  * Path endpoint: /api/products/{productId}
  */
-router.patch("/:productId", (req, res, next) => {
-  doUpdate(res, req);
+router.patch("/:productId", async (req, res, next) => {
+  try{
+    const changedProduct = await doUpdate(res, req);
+    res.status(200).json(changedProduct);
+  } catch (err) {
+    res.status(err.status).send(err);
+  }
 });
 
 /**
@@ -75,15 +85,15 @@ router.patch("/:productId", (req, res, next) => {
  * HTTP Verb: DELETE
  * Path endpoint: /api/products/{productId}
  */
-router.delete("/:productId", (req, res, next) => {
+router.delete("/:productId", async (req, res, next) => {
   const productId = req.params.productId;
   const repository = new ProductsRepository(MONGODB_URL);
-  repository.delete(productId, (err) => {
-    if (err) {
-      return res.status(err.status).send(err);
-    }
+  try {
+    await repository.delete(productId);
     res.status(200).json({});
-  });
+  } catch(err) {
+    return res.status(err.status).send(err);
+  }
 });
 
 /**
@@ -91,16 +101,11 @@ router.delete("/:productId", (req, res, next) => {
  * @param {*} res - Express Response object
  * @param {*} req - Express Request object
  */
-function doUpdate(res, req) {
+async function doUpdate(res, req) {
   const productId = req.params.productId;
   const changedProduct = req.body;
   const repository = new ProductsRepository(MONGODB_URL);
-  repository.update(productId, changedProduct, (err, updatedProduct) => {
-    if (err) {
-      return res.status(err.status).send(err);
-    }
-    res.status(200).json(changedProduct);
-  });
+  return repository.update(productId, changedProduct);
 }
 
 module.exports = router;
