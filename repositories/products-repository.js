@@ -175,27 +175,6 @@ class ProductsRepository {
         resolve(null);
       });
     });
-
-    // // Connect to MongoDB using mongoose
-    // mongoose.connect(this.mongodbUrl);
-    // const db = mongoose.connection;
-
-    // db.on(`error`, (err) => {
-    //   console.log(`[ERROR] - <ProductsRepository.delete> Details: \n`, err);
-    //   callback({ error: err, message: 'Unable to connect to database.', status: 500});
-    // });
-
-    // Product.remove( { _id: productId }, (err)=>{
-    //   // Disconnect from mongoDB
-    //   mongoose.disconnect();
-
-    //   if (err) {
-    //     console.log(`[ERROR] - <ProductsRepository.delete> Details: \n`, err);
-    //     return callback(err);
-    //   }
-
-    //   callback(null);
-    // });
   }
 }
 

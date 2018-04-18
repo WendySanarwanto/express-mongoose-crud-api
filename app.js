@@ -19,7 +19,6 @@ app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-// app.use(express.static(path.join(__dirname, 'public')));
 
 // More about cors arguments: https://medium.com/trisfera/using-cors-in-express-cac7e29b005b
 app.use(cors());
