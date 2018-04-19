@@ -40,7 +40,7 @@ describe(`Product API`, () => {
       json: true
     };
 
-    // Call create product API
+    // Call delete product API
     request(params, (err, response) => {
       assert.equal(err, null);
       createdProduct = null;
