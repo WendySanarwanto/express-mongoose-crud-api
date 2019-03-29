@@ -1,6 +1,5 @@
 "use strict";
 
-const mongoose = require('mongoose');
 const Product = require(`../models/product-model`);
 
 class ProductsRepository {
@@ -24,20 +23,8 @@ class ProductsRepository {
         return reject({ error: errValidation, message: 'Unable to create a new Product.', status: 400});
       }
 
-      // Connect to MongoDB using mongoose
-      mongoose.connect(this.mongodbUrl);
-      const db = mongoose.connection;
-
-      db.on(`error`, (err) => {
-        console.log(`[ERROR] - <ProductsRepository.createProduct> details: \n`, err);
-        return reject({ error: err, message: 'Unable to connect to database.', status: 500});
-      });
-
       // Save the Product instance into MongoDB server
       newProduct.save((err, createdProduct) => {
-        // Disconnect from mongoDB
-        mongoose.disconnect();
-
         // Handle error's response
         if (err) {
           console.log(`[ERROR] - <ProductsRepository.createProduct> details: \n`, err);
@@ -55,19 +42,8 @@ class ProductsRepository {
    * @param {*} filter - optional parameter that can be used to filter the records. Default value is an empty object.
    */
   getAll(filter = {}) {
-    return new Promise((resolve, reject) => {
-      // Connect to MongoDB using mongoose
-      mongoose.connect(this.mongodbUrl);
-      const db = mongoose.connection;
-
-      db.on(`error`, (err) => {
-        console.log(`[ERROR] - <ProductsRepository.getAll> Details: \n`, err);
-        reject({ error: err, message: 'Unable to connect to database.', status: 500});
-      });
-      
+    return new Promise((resolve, reject) => {      
       Product.find(filter, (err, products) => {
-        // Disconnect from mongoDB
-        mongoose.disconnect();
 
         if (err) {
           console.log(`[ERROR] - <ProductsRepository.getAll> Details: \n`, err);
@@ -85,19 +61,7 @@ class ProductsRepository {
    */
   get(id) {
     return new Promise((resolve, reject) => {
-      // Connect to MongoDB using mongoose
-      mongoose.connect(this.mongodbUrl);
-      const db = mongoose.connection;
-
-      db.on(`error`, (err) => {
-        console.log(`[ERROR] - <ProductsRepository.get> Details: \n`, err);
-        reject({ error: err, message: 'Unable to connect to database.', status: 500});
-      });
-
       Product.findById(id, (err, product) => {
-        // Disconnect from mongoDB
-        mongoose.disconnect();
-
         if (err) {
           console.log(`[ERROR] - <ProductsRepository.get> Details: \n`, err);
           return reject(err);
@@ -125,19 +89,7 @@ class ProductsRepository {
         return reject({ error: errValidation, message: 'Unable to update a Product.', status: 400});
       }
       
-      // Connect to MongoDB using mongoose
-      mongoose.connect(this.mongodbUrl);
-      const db = mongoose.connection;
-
-      db.on(`error`, (err) => {
-        console.log(`[ERROR] - <ProductsRepository.update> Details: \n`, err);
-        reject({ error: err, message: 'Unable to connect to database.', status: 500});
-      });
-      
       Product.findByIdAndUpdate(id, changedData, { new: true }, (err, updatedProduct) => {
-        // Disconnect from mongoDB
-        mongoose.disconnect();
-
         if (err) {
           console.log(`[ERROR] - <ProductsRepository.update> Details: \n`, err);
           return reject(err);
@@ -154,19 +106,7 @@ class ProductsRepository {
    */
   delete(productId) {
     return new Promise((resolve, reject) => {
-      // Connect to MongoDB using mongoose
-      mongoose.connect(this.mongodbUrl);
-      const db = mongoose.connection;
-
-      db.on(`error`, (err) => {
-        console.log(`[ERROR] - <ProductsRepository.delete> Details: \n`, err);
-        reject({ error: err, message: 'Unable to connect to database.', status: 500});
-      });
-
       Product.remove( { _id: productId }, (err)=>{
-        // Disconnect from mongoDB
-        mongoose.disconnect();
-
         if (err) {
           console.log(`[ERROR] - <ProductsRepository.delete> Details: \n`, err);
           return reject(err);
