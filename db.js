@@ -7,7 +7,7 @@ const MONGODB_CONNECTION_STRING = `mongodb://${MONGODB_HOST}/${MONGODB_DB_NAME}`
 class Db {
   static get instance() {
     if (!this._instance) {
-      mongoose.connect(MONGODB_CONNECTION_STRING, () => {        
+      mongoose.connect(MONGODB_CONNECTION_STRING, { useNewUrlParser: true }, () => {        
         console.log(`Connected to MongoDB Database hosted at ${MONGODB_HOST}`);
       });
       this._instance = mongoose;
