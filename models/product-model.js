@@ -1,6 +1,7 @@
 'use strict';
 
-const mongoose = require('mongoose');
+// const mongoose = require('mongoose');
+const mongoose = require('../db');
 const MODEL_NAME = 'Product';
 
 // Define Product Schema
